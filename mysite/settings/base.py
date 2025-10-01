@@ -29,6 +29,8 @@ INSTALLED_APPS = [
     'corsheaders',
     "home",
     "search",
+    "navigation",
+    "content",
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
     "wagtail.embeds",
