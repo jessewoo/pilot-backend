@@ -3,9 +3,12 @@ from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
 
 from wagtail.models import Orderable
+from wagtail.fields import StreamField
 from wagtail.admin.panels import FieldPanel, InlinePanel, MultiFieldPanel
 from wagtail.api import APIField
 from wagtail.snippets.models import register_snippet
+from wagtail import blocks
+from wagtail.images.blocks import ImageChooserBlock
 
 
 @register_snippet
@@ -45,7 +48,55 @@ class Footer(ClusterableModel):
         blank=True,
         help_text="e.g., '© 2025 Company Name. All rights reserved.'"
     )
-    
+
+    # Flexible Content Sections
+    content_sections = StreamField([
+        ('text_section', blocks.StructBlock([
+            ('title', blocks.CharBlock(required=False)),
+            ('content', blocks.RichTextBlock()),
+        ], icon='doc-full')),
+
+        ('link_list', blocks.StructBlock([
+            ('title', blocks.CharBlock(required=False)),
+            ('links', blocks.ListBlock(
+                blocks.StructBlock([
+                    ('text', blocks.CharBlock()),
+                    ('url', blocks.URLBlock()),
+                    ('open_in_new_tab', blocks.BooleanBlock(required=False, default=False)),
+                ])
+            )),
+        ], icon='list-ul')),
+
+        ('image_section', blocks.StructBlock([
+            ('image', ImageChooserBlock()),
+            ('alt_text', blocks.CharBlock(required=False)),
+            ('caption', blocks.CharBlock(required=False)),
+            ('link', blocks.URLBlock(required=False)),
+        ], icon='image')),
+
+        ('contact_info', blocks.StructBlock([
+            ('title', blocks.CharBlock(required=False)),
+            ('items', blocks.ListBlock(
+                blocks.StructBlock([
+                    ('label', blocks.CharBlock()),
+                    ('value', blocks.CharBlock()),
+                    ('icon', blocks.CharBlock(required=False, help_text="Icon class or emoji")),
+                ])
+            )),
+        ], icon='mail')),
+
+        ('newsletter_signup', blocks.StructBlock([
+            ('title', blocks.CharBlock(default="Subscribe to our newsletter")),
+            ('description', blocks.TextBlock(required=False)),
+            ('placeholder', blocks.CharBlock(default="Enter your email")),
+            ('button_text', blocks.CharBlock(default="Subscribe")),
+            ('action_url', blocks.URLBlock(help_text="Form submission URL")),
+        ], icon='mail')),
+
+        ('custom_html', blocks.RawHTMLBlock(icon='code')),
+
+    ], use_json_field=True, blank=True)
+
     panels = [
         FieldPanel('title'),
         
@@ -69,7 +120,9 @@ class Footer(ClusterableModel):
         MultiFieldPanel([
             FieldPanel('copyright_text'),
         ], heading="Legal"),
-        
+
+        FieldPanel('content_sections'),
+
         InlinePanel('footer_columns', label="Footer Link Columns"),
         InlinePanel('social_links', label="Social Media Links"),
     ]
@@ -88,6 +141,7 @@ class Footer(ClusterableModel):
         APIField('zip_code'),
         APIField('country'),
         APIField('copyright_text'),
+        APIField('content_sections'),
         APIField('footer_columns'),
         APIField('social_links'),
     ]

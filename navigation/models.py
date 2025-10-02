@@ -11,28 +11,52 @@ from wagtail.snippets.models import register_snippet
 @register_snippet
 class NavigationMenu(ClusterableModel):
     """Main navigation menu that can contain multiple menu items"""
-    
+
     title = models.CharField(max_length=100)
     slug = models.SlugField(unique=True, max_length=100)
-    
+
+    # Optional link for the menu itself
+    link_page = models.ForeignKey(
+        'wagtailcore.Page',
+        null=True,
+        blank=True,
+        related_name='+',
+        on_delete=models.SET_NULL,
+        help_text="Optional: Link this menu directly to a page"
+    )
+    link_url = models.URLField(
+        blank=True,
+        help_text="Optional: Or link to an external URL"
+    )
+
+    display_order = models.IntegerField(
+        default=0,
+        help_text="Lower numbers appear first in the list"
+    )
+
     panels = [
         FieldPanel('title'),
         FieldPanel('slug'),
-        InlinePanel('menu_items', label="Menu Items"),
+        FieldPanel('link_page'),
+        FieldPanel('link_url'),
+        FieldPanel('display_order'),
+        InlinePanel('menu_items', label="Menu Items (optional - leave empty for simple link)"),
     ]
-    
-    api_fields = [
-        APIField('title'),
-        APIField('slug'),
-        APIField('menu_items'),
-    ]
-    
+
+    @property
+    def link(self):
+        """Return the appropriate link (page or URL)"""
+        if self.link_page:
+            return self.link_page.url
+        return self.link_url
+
     def __str__(self):
         return self.title
-    
+
     class Meta:
         verbose_name = "Navigation Menu"
         verbose_name_plural = "Navigation Menus"
+        ordering = ['display_order', 'title']
 
 
 class MenuItem(ClusterableModel, Orderable):
@@ -58,14 +82,17 @@ class MenuItem(ClusterableModel, Orderable):
         help_text="Or link to an external URL"
     )
     open_in_new_tab = models.BooleanField(default=False)
-    
+
     panels = [
         FieldPanel('title'),
         PageChooserPanel('link_page'),
         FieldPanel('link_url'),
         FieldPanel('open_in_new_tab'),
-        InlinePanel('sub_items', label="Sub Menu Items"),
+        InlinePanel('sub_items', label="Sub Menu Items", heading="Sub Menu Items"),
     ]
+
+    class Meta(Orderable.Meta):
+        ordering = ['sort_order']
     
     api_fields = [
         APIField('title'),
