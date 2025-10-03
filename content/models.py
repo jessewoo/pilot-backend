@@ -35,8 +35,26 @@ class FlexiblePage(Page):
         FieldPanel('content'),
     ]
 
+    def get_breadcrumbs(self):
+        """Return breadcrumb trail for this page"""
+        breadcrumbs = []
+        for ancestor in self.get_ancestors(inclusive=False).live().public():
+            breadcrumbs.append({
+                'title': ancestor.title,
+                'url': ancestor.url,
+                'slug': ancestor.slug,
+            })
+        # Add current page
+        breadcrumbs.append({
+            'title': self.title,
+            'url': self.url,
+            'slug': self.slug,
+        })
+        return breadcrumbs
+
     api_fields = [
         APIField('content'),
+        APIField('breadcrumbs', serializer=lambda self: self.get_breadcrumbs()),
     ]
 
 
@@ -116,6 +134,24 @@ class AdvancedFlexiblePage(Page):
         FieldPanel('body'),
     ]
 
+    def get_breadcrumbs(self):
+        """Return breadcrumb trail for this page"""
+        breadcrumbs = []
+        for ancestor in self.get_ancestors(inclusive=False).live().public():
+            breadcrumbs.append({
+                'title': ancestor.title,
+                'url': ancestor.url,
+                'slug': ancestor.slug,
+            })
+        # Add current page
+        breadcrumbs.append({
+            'title': self.title,
+            'url': self.url,
+            'slug': self.slug,
+        })
+        return breadcrumbs
+
     api_fields = [
         APIField('body'),
+        APIField('breadcrumbs', serializer=lambda self: self.get_breadcrumbs()),
     ]

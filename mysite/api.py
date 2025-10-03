@@ -204,6 +204,25 @@ def page_by_slug(request):
             'last_published_at': page.last_published_at,
         }
 
+        # Add breadcrumbs
+        if hasattr(page, 'get_breadcrumbs'):
+            data['breadcrumbs'] = page.get_breadcrumbs()
+        else:
+            # Default breadcrumbs implementation for all pages
+            breadcrumbs = []
+            for ancestor in page.get_ancestors(inclusive=False).live().public():
+                breadcrumbs.append({
+                    'title': ancestor.title,
+                    'url': ancestor.url,
+                    'slug': ancestor.slug,
+                })
+            breadcrumbs.append({
+                'title': page.title,
+                'url': page.url,
+                'slug': page.slug,
+            })
+            data['breadcrumbs'] = breadcrumbs
+
         # Helper function to serialize field values
         def serialize_field_value(field_value):
             from wagtail.rich_text import RichText
