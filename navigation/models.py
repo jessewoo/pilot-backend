@@ -24,9 +24,10 @@ class NavigationMenu(ClusterableModel):
         on_delete=models.SET_NULL,
         help_text="Optional: Link this menu directly to a page"
     )
-    link_url = models.URLField(
+    link_url = models.CharField(
+        max_length=500,
         blank=True,
-        help_text="Optional: Or link to an external URL"
+        help_text="Optional: Or link to a URL (can be relative like /about or full URL)"
     )
 
     display_order = models.IntegerField(
@@ -77,9 +78,10 @@ class MenuItem(ClusterableModel, Orderable):
         on_delete=models.CASCADE,
         help_text="Link to an internal page"
     )
-    link_url = models.URLField(
+    link_url = models.CharField(
+        max_length=500,
         blank=True,
-        help_text="Or link to an external URL"
+        help_text="Or link to a URL (can be relative like /about or full URL)"
     )
     open_in_new_tab = models.BooleanField(default=False)
 
@@ -131,9 +133,10 @@ class SubMenuItem(Orderable):
         on_delete=models.CASCADE,
         help_text="Link to an internal page"
     )
-    link_url = models.URLField(
+    link_url = models.CharField(
+        max_length=500,
         blank=True,
-        help_text="Or link to an external URL"
+        help_text="Or link to a URL (can be relative like /about or full URL)"
     )
     open_in_new_tab = models.BooleanField(default=False)
     description = models.CharField(

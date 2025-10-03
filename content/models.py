@@ -20,6 +20,15 @@ class FlexiblePage(Page):
         ('quote', blocks.BlockQuoteBlock(icon="openquote")),
         ('embed', EmbedBlock(icon="media")),
         ('list', blocks.ListBlock(blocks.CharBlock(), icon="list-ul")),
+        ('list_with_links', blocks.StructBlock([
+            ('title', blocks.CharBlock(required=False, help_text="Optional title for the list")),
+            ('items', blocks.ListBlock(
+                blocks.StructBlock([
+                    ('text', blocks.CharBlock()),
+                    ('link', blocks.CharBlock(required=False, help_text="Optional link (can be relative like /about or full URL)")),
+                ])
+            )),
+        ], icon="list-ul")),
     ], use_json_field=True, blank=True)
 
     content_panels = Page.content_panels + [
@@ -91,6 +100,16 @@ class AdvancedFlexiblePage(Page):
             ('button_text', blocks.CharBlock()),
             ('button_url', blocks.URLBlock()),
         ], icon="warning")),
+
+        ('list_with_links', blocks.StructBlock([
+            ('title', blocks.CharBlock(required=False, help_text="Optional title for the list")),
+            ('items', blocks.ListBlock(
+                blocks.StructBlock([
+                    ('text', blocks.CharBlock()),
+                    ('link', blocks.CharBlock(required=False, help_text="Optional link (can be relative like /about or full URL)")),
+                ])
+            )),
+        ], icon="list-ul")),
     ], use_json_field=True, blank=True)
 
     content_panels = Page.content_panels + [
